@@ -257,12 +257,14 @@ def test_gitlab_client_init(
 
         # Evaluate (expected -> actual)
         assert expected_hvcs_domain == client.hvcs_domain.url
-        if "CI_JOB_TOKEN" in patched_os_environ and patched_os_environ["CI_JOB_TOKEN"] == token:
+        if "CI_JOB_TOKEN" in patched_os_environ and (patched_os_environ["CI_JOB_TOKEN"] == token or not token):
             assert client._client.job_token == patched_os_environ["CI_JOB_TOKEN"]
             assert client._client.private_token is None
+            assert client.token == patched_os_environ["CI_JOB_TOKEN"]
         else:
             assert client._client.job_token is None
-        assert token == client.token
+            assert client._client.private_token == token
+            assert token == client.token
         assert remote_url == client._remote_url
 
 
